@@ -1,0 +1,35 @@
+apply plugin: 'java'
+
+task "create-dirs" << {
+   sourceSets*.java.srcDirs*.each { it.mkdirs() }
+   sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+}
+
+repositories{
+    mavenCentral() // Use 'maven central' for resolving your thirdparty dependencies.
+                   // you can declare any maven/ivy/file repository to resolve your thirdparty dependencies
+}
+
+dependencies{
+    compile 'org.slf4j:slf4j-api:1.7.5'
+    testCompile "junit:junit:4.11"
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+
+    group = 'ap-tools'
+    version = '0.1-SNAPSHOT'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    version = '1.0'
+
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+}
