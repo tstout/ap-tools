@@ -1,6 +1,6 @@
 ap-tools
 ========
 
-Experminentations with the java 6 annotation processing API
+Experminentation with the java 6 annotation processing API
 
  
