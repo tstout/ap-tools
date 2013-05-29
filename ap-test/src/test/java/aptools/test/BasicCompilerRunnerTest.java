@@ -6,8 +6,9 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+import static com.google.common.base.Throwables.*;
 
 public class BasicCompilerRunnerTest {
 
@@ -25,7 +26,7 @@ public class BasicCompilerRunnerTest {
         Javac compiler = new Javac();
         compiler.addSource(new JavaSourceFromString("HelloWorld", writer.toString()));
 
-        compiler.compile(new DiagnosticAction() {
+        ClassLoader loader = compiler.compile(new DiagnosticAction() {
             @Override public void run(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
                 for (Diagnostic diagnostic : diagnostics) {
                     System.out.println(diagnostic.getCode());
@@ -40,16 +41,11 @@ public class BasicCompilerRunnerTest {
         });
 
         try {
-            Class.forName("HelloWorld").getDeclaredMethod("main", new Class[]{String[].class})
+            loader.loadClass("HelloWorld")
+                    .getDeclaredMethod("main", new Class[]{String[].class})
                     .invoke(null, new Object[]{null});
-        } catch (ClassNotFoundException e) {
-            System.err.println("Class not found: " + e);
-        } catch (NoSuchMethodException e) {
-            System.err.println("No such method: " + e);
-        } catch (IllegalAccessException e) {
-            System.err.println("Illegal access: " + e);
-        } catch (InvocationTargetException e) {
-            System.err.println("Invocation target: " + e);
+        } catch (Exception e) {
+            throw propagate(e);
         }
     }
 }
