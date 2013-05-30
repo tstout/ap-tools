@@ -3,10 +3,10 @@ package aptools.test;
 import javax.tools.SimpleJavaFileObject;
 import java.net.URI;
 
-public class JavaSourceFromString extends SimpleJavaFileObject {
-    final String code;
+public class JavaSource extends SimpleJavaFileObject {
+    private final String code;
 
-    JavaSourceFromString(String name, String code) {
+    JavaSource(String name, String code) {
         super(URI.create("string:///" + name.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
         this.code = code;
     }
