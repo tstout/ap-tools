@@ -28,7 +28,7 @@ public class BasicCompilerRunnerTest {
 
         Javac compiler = new Javac().addSource(new JavaSource("test.Echo", writer.toString()));
 
-        ClassLoader loader = compiler.compile(new DiagnosticAction() {
+        ClassLoader loader = compiler.run(new DiagnosticAction() {
             @Override public void run(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
                 dumpAnyCompileErrors(diagnostics);
                 assertThat(diagnostics.size(), is(0));

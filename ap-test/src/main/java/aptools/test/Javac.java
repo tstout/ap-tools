@@ -14,6 +14,7 @@
 
 package aptools.test;
 
+import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 import javax.tools.DiagnosticCollector;
@@ -46,6 +47,7 @@ public class Javac {
     private final JavaCompiler compiler= ToolProvider.getSystemJavaCompiler();
     private final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
     private final List<JavaFileObject> fileObjects = newArrayList();
+    private final List<String> classesToProcess = newArrayList();
     private final List<String> annotationProcessors = newArrayList();
 
     private final StandardJavaFileManager fileManager = compiler.getStandardFileManager(
@@ -58,23 +60,36 @@ public class Javac {
         return this;
     }
 
+    public Javac addClassForAP(Class<?> clazz) {
+        classesToProcess.add(clazz.getName());
+        return this;
+    }
+
     public Javac addAnnotationProcessor(Class<?> clazz) {
         annotationProcessors.add(clazz.getName());
         return this;
     }
 
-    public ClassLoader compile(DiagnosticAction action) {
+    public ClassLoader run(DiagnosticAction action) {
+        List opts = classesToProcess.size() == 0 ?
+                Arrays.asList("-d", outputFolder.getPath()) :
+                Arrays.asList("-d", outputFolder.getPath(), "-processor", processorList());
+
         JavaCompiler.CompilationTask task = compiler.getTask(
                 null,
                 fileManager,
                 diagnostics,
-                Arrays.asList("-d", outputFolder.getPath()),
-                annotationProcessors,
+                opts,
+                classesToProcess,
                 fileObjects);
 
         task.call();
         action.run(diagnostics.getDiagnostics());
         return newClassLoader();
+    }
+
+    private String processorList() {
+        return Joiner.on(',').join(annotationProcessors);
     }
 
     private ClassLoader newClassLoader() {
